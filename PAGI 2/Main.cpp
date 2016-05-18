@@ -22,6 +22,8 @@ bool  lightingEnabled = true;
 
 void mousesz(int x, int y);
 
+bool selectionMoment = false;
+
 void printINT(int value) {
 	TCHAR buf[100];
 	int len = sprintf(buf, _T("%d\n"), value);
@@ -80,6 +82,14 @@ bool CreateTexture(LPTSTR filePath, GLuint &textureID)
 /////	RZECZY ZWI¥ZANE Z SAMYM GDI
 /////
 /////////////////
+
+void invokeMouse() {
+	POINT  points[1] = { 0 };
+	GetCursorPos(points);
+
+	ScreenToClient(hWnd, points);
+	mousesz(points[0].x, points[0].y);
+}
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hprev, PSTR cmdline, int ishow) {
 	
@@ -237,16 +247,19 @@ void Display() {
 	glRotatef(rotationX, 0, 1.0f, 0);
 	rotationX += rotationSpeed;		
 
+
+	if (selectionMoment) {
+		selectionMoment = false;
+		
+		// RYSOWANIE SAMYMI KOLORAMI
+
+		invokeMouse();
+	}
+
 	// RYSOWANIE
 	for (int i = 0; i < scene.objects.size(); i++) {
 		scene.objects[i].Draw();
 	}
-
-	POINT  points[1] = { 0 };
-	GetCursorPos(points);
-
-	ScreenToClient(hWnd, points);
-	mousesz(points[0].x, points[0].y);
 
 	SwapBuffers(deviceContext);	
 }
@@ -295,6 +308,10 @@ LRESULT CALLBACK WindowsMessageHandler(HWND hWnd,UINT msg, WPARAM wParam, LPARAM
 			PostQuitMessage(0);					
 			break;
 		}
+	}
+	else if (msg == WM_LBUTTONDOWN) {
+		selectionMoment = true;
+		printSTR("MMMM");
 	}
 	else if (msg == WM_CLOSE) {
 		PostQuitMessage(0);
