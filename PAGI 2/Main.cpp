@@ -7,7 +7,8 @@ Vector3 const Vector3::zero = Vector3(0, 0, 0);
 Vector3 const Vector3::one = Vector3(1, 1, 1);
 
 RECT  windowRekt;		
-HDC   deviceContext;	
+HDC   deviceContext;
+HWND hWnd;
 
 UINT textures[128] = { 0 };						
 
@@ -17,7 +18,9 @@ GLuint frameBuffer;
 GLuint texColorBuffer;
 
 bool drawLines = false;
-bool  lightingEnabled = true;				
+bool  lightingEnabled = true;		
+
+void mousesz(int x, int y);
 
 void printINT(int value) {
 	TCHAR buf[100];
@@ -30,6 +33,20 @@ void printSTRINT(char * s, int value) {
 	int len = 0;
 	len = sprintf(buf, _T("%s "), s);
 	sprintf(buf + len, _T("%d\n"), value);
+	OutputDebugString(buf);
+}
+
+void print2INT(int value1, int value2) {
+	TCHAR buf[100];
+	int len = 0;
+	len = sprintf(buf, _T("%d, %d\n"), value1, value2);
+	OutputDebugString(buf);
+}
+
+void printSTR(char * s) {
+	TCHAR buf[100];
+	int len = 0;
+	len = sprintf(buf, _T("%s\n"), s);
 	OutputDebugString(buf);
 }
 
@@ -72,14 +89,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hprev, PSTR cmdline, int ishow
 
 	InitializeWindow(hWnd);
 
-	glewInit();
-	createFramebuffer();
+	//glewInit();
+	//createFramebuffer();
 
 	return (int)MainLoop();
 }
 
 HWND GenerateWindow(LPSTR strWindowName, int width, int height, HINSTANCE hInstance){
-	HWND hWnd;
+	
 	WNDCLASS wndclass;
 	memset(&wndclass, 0, sizeof(WNDCLASS));	
 
@@ -225,6 +242,12 @@ void Display() {
 		scene.objects[i].Draw();
 	}
 
+	POINT  points[1] = { 0 };
+	GetCursorPos(points);
+
+	ScreenToClient(hWnd, points);
+	mousesz(points[0].x, points[0].y);
+
 	SwapBuffers(deviceContext);	
 }
 
@@ -263,6 +286,11 @@ LRESULT CALLBACK WindowsMessageHandler(HWND hWnd,UINT msg, WPARAM wParam, LPARAM
 				glDisable(GL_LIGHTING);
 			}
 			break;
+		/*case WM_MOUSEMOVE: {
+			xPos = GET_X_LPARAM(lParam);
+			yPos = GET_Y_LPARAM(lParam);
+		}*/
+
 		case VK_ESCAPE:							
 			PostQuitMessage(0);					
 			break;
@@ -446,27 +474,55 @@ void Scene::ComputeNormals()
 
 
 
-//https://open.gl/framebuffers
-void createFramebuffer() {
+////https://open.gl/framebuffers
+//void createFramebuffer() {
+//	
+//	glGenFramebuffers(1, &frameBuffer);
+//	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+//
+//	// Create texture to hold color buffer
+//	glGenTextures(1, &texColorBuffer);
+//	glBindTexture(GL_TEXTURE_2D, texColorBuffer);
+//
+//	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCREEN_HEIGHT, SCREEN_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+//
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//
+//	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texColorBuffer, 0);
+//
+//	// Create Renderbuffer Object to hold depth and stencil buffers
+//	GLuint rboDepthStencil;
+//	glGenRenderbuffers(1, &rboDepthStencil);
+//	glBindRenderbuffer(GL_RENDERBUFFER, rboDepthStencil);
+//	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600);
+//	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rboDepthStencil);
+//}
+
+void mousesz(int x, int y)
+{
+	// 4 bytes per pixel (RGBA), 1x1 bitmap
+	vector< unsigned char > pixels(1 * 1 * 4);
+	glReadPixels
+		(
+			x, windowRekt.bottom - y,
+			1, 1,
+			GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]
+			);
+
+	stringstream ss;
 	
-	glGenFramebuffers(1, &frameBuffer);
-	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+	ss << x << " " << y << ": ";
+	ss << "r: " << (int)pixels[0];
+	ss << " g: " << (int)pixels[1];
+	ss << " b: " << (int)pixels[2];
+	ss << " a: " << (int)pixels[3];
+	ss << endl;
 
-	// Create texture to hold color buffer
-	glGenTextures(1, &texColorBuffer);
-	glBindTexture(GL_TEXTURE_2D, texColorBuffer);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCREEN_HEIGHT, SCREEN_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texColorBuffer, 0);
-
-	// Create Renderbuffer Object to hold depth and stencil buffers
-	GLuint rboDepthStencil;
-	glGenRenderbuffers(1, &rboDepthStencil);
-	glBindRenderbuffer(GL_RENDERBUFFER, rboDepthStencil);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rboDepthStencil);
+	string str = ss.str();
+	char *cstr = new char[str.length() + 1];
+	strcpy(cstr, str.c_str());
+	printSTR(cstr);
+	delete[] cstr;
 }

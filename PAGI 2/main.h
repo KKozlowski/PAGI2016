@@ -8,9 +8,11 @@
 #include <math.h>
 #include <fstream>
 #include <vector>
-#include <GL\glew.h>										
+//#include <GL\glew.h>		
+#include <GL\gl.h>	
 #include <gl\glu.h>
 #include <tchar.h>
+#include <sstream>
 
 using namespace std;
 
