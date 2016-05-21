@@ -27,6 +27,37 @@ void printINT(int value);
 
 void printSTRINT(char * s, int value);
 
+class Color {
+public:
+	BYTE r;
+	BYTE g;
+	BYTE b;
+
+	Color() {
+		r = g = b = 0;
+	}
+
+	Color(BYTE red, BYTE green, BYTE blue) {
+		r = red;
+		g = green;
+		b = blue;
+	}
+
+	Color(vector< unsigned char > vec) {
+		r = vec[0];
+		g = vec[1];
+		b = vec[2];
+	}
+
+	bool operator<(const Color &two) const {
+		return r < two.r && g < two.g && b < two.b;
+	}
+
+	bool operator==(const Color &two) const {
+		return r == two.r && g == two.g && b == two.b;
+	}
+};
+
 ///<summary>
 ///Przechowuje informacje o punkcie w trójwymiarowym uk³adzie odniesienia.
 ///Wa¿na sprawa - sk³ada siê tylko z trzech liczb float, wiêc mo¿na wczytywaæ do niego informacje przez fread prosto z pliku 3ds.
@@ -143,12 +174,21 @@ public:
 	void ReadUVCoordinates(Chunk *, FILE *);
 	void AssignMaterialByName(Scene *scene, char *name);
 	void Draw();
+
+	void DrawColor();
+
+	Color color;
+	void AssignColor();
+
+	static Object3DS *selected;
 };
 
 struct Scene {
 	vector<Material> materials;	
 	vector<Object3DS> objects;	
 	void ComputeNormals();
+
+	Object3DS *selectObjectByColor(Color c);
 };
 
 ///<summary>Funkcja "main()" w aplikacjach okienkowych GDI.</summary>

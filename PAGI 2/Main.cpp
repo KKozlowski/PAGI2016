@@ -1,6 +1,6 @@
 #include "main.h"										
 #include "3ds.h"										
-
+#include <time.h>
 #define FILE_NAME  "test.3ds"
 
 Vector3 const Vector3::zero = Vector3(0, 0, 0);
@@ -23,6 +23,12 @@ bool  lightingEnabled = true;
 void mousesz(int x, int y);
 
 bool selectionMoment = false;
+
+Object3DS *Object3DS::selected = 0;
+
+int randomRange(int min, int max) {
+	return min + (rand() % (int)(max - min + 1));
+}
 
 void printINT(int value) {
 	TCHAR buf[100];
@@ -92,7 +98,7 @@ void invokeMouse() {
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hprev, PSTR cmdline, int ishow) {
-	
+	srand(time(NULL));
 
 	HWND hWnd = GenerateWindow("PAG 1", SCREEN_WIDTH, SCREEN_HEIGHT, hInstance);
 	if (hWnd == NULL) return 0;
@@ -252,8 +258,13 @@ void Display() {
 		selectionMoment = false;
 		
 		// RYSOWANIE SAMYMI KOLORAMI
-
+		glDisable(GL_LIGHTING);
+		for (int i = 0; i < scene.objects.size(); i++) {
+			scene.objects[i].DrawColor();
+		}
 		invokeMouse();
+		if (lightingEnabled)
+			glEnable(GL_LIGHTING);
 	}
 
 	// RYSOWANIE
@@ -311,7 +322,6 @@ LRESULT CALLBACK WindowsMessageHandler(HWND hWnd,UINT msg, WPARAM wParam, LPARAM
 	}
 	else if (msg == WM_LBUTTONDOWN) {
 		selectionMoment = true;
-		printSTR("MMMM");
 	}
 	else if (msg == WM_CLOSE) {
 		PostQuitMessage(0);
@@ -322,6 +332,7 @@ LRESULT CALLBACK WindowsMessageHandler(HWND hWnd,UINT msg, WPARAM wParam, LPARAM
 
 void Object3DS::ReadVertices(Chunk *overchunk, FILE *file)
 {
+	AssignColor();
 	// Czytamy liczbê wierzcho³ków
 	overchunk->progress += fread(&(this->vertexCount), 1, 2, file);
 
@@ -438,6 +449,23 @@ void Object3DS::Draw(){
 	}
 }
 
+void Object3DS::DrawColor() {
+	glDisable(GL_TEXTURE_2D);
+
+	glColor3ub(color.r, color.g, color.b);
+
+	glBegin(GL_TRIANGLES);
+	for (int j = 0; j < triangleCount; j++) {
+		for (int v = 0; v < 3; v++) {
+			int index = triangles[j].vertexIndexes[v];
+			glNormal3f(normals[index].x, normals[index].y, normals[index].z);
+			glVertex3f(vertices[index].x, vertices[index].y, vertices[index].z);
+		}
+	}
+
+	glEnd();
+}
+
 void Scene::ComputeNormals()
 {
 	Vector3 one, two, norm, triangle[3];
@@ -488,7 +516,33 @@ void Scene::ComputeNormals()
 	}
 }
 
+Object3DS *Scene::selectObjectByColor(Color c)
+{
+	for (int i = 0; i < objects.size();i++)
+		if (objects[i].color == c)
+			return &objects[i];
 
+	return NULL;
+}
+
+void Object3DS::AssignColor()
+{
+	Color color(0, 0, 0);
+	//while (usedColors.find(color) != usedColors.end()) {
+	bool cont = true;
+	while (cont) {
+		color = Color(randomRange(0, 255), randomRange(0, 255), randomRange(0, 255));
+		cont = false;
+		for (int i = 0; i < scene.objects.size();i++)
+			if (scene.objects[i].color == color)
+				cont = true;
+	}
+	
+		
+	//}
+
+	this->color = color;
+}
 
 
 ////https://open.gl/framebuffers
@@ -528,12 +582,21 @@ void mousesz(int x, int y)
 			);
 
 	stringstream ss;
-	
+
+	Color c(pixels);
+
+	Object3DS::selected = scene.selectObjectByColor(c);
+	string strr; 
+	if (Object3DS::selected == NULL)
+		strr = "NULL";
+	else
+		strr = string(Object3DS::selected->name);
 	ss << x << " " << y << ": ";
-	ss << "r: " << (int)pixels[0];
+	/*ss << "r: " << (int)pixels[0];
 	ss << " g: " << (int)pixels[1];
 	ss << " b: " << (int)pixels[2];
-	ss << " a: " << (int)pixels[3];
+	ss << " a: " << (int)pixels[3];*/
+	ss << " " << strr;
 	ss << endl;
 
 
