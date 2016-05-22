@@ -290,6 +290,7 @@ void Display() {
 	}
 	glClearColor(0.5, 1, 1, 1);
 	// RYSOWANIE
+	
 	for (int i = 0; i < scene.objects.size(); i++) {
 		scene.objects[i].Draw();
 	}
@@ -352,8 +353,10 @@ LRESULT CALLBACK WindowsMessageHandler(HWND hWnd,UINT msg, WPARAM wParam, LPARAM
 			break;
 		case 0x33:
 			editor.mode = MOVE_OBJECT;
+			break;
 		case 0x34:
 			editor.mode = ROTATE_OBJECT;
+			break;
 
 		case VK_ESCAPE:							
 			PostQuitMessage(0);					
@@ -434,33 +437,31 @@ void Object3DS::AssignMaterialByName(Scene * scene, char *  objectMaterialName){
 	}
 }
 
-/*
-void SetUpTransforms(TransformInfo& actor)
+
+void ApplyTransformations(Object3DS &obj)
 {
-	if (actor.parent != -1)
-		SetUpTransforms(g_3DModel.hierarchy[actor.parent]);				// First applyy parent tranformations
-	glTranslatef(actor.offset.x, actor.offset.y, actor.offset.z);		// go to parent position
-	glTranslatef(actor.position.x, actor.position.y, actor.position.z);	// apply position translation
-	glRotatef(actor.rotation.x, 1, 0, 0);								// apply euler angles rotation
-	glRotatef(actor.rotation.y, 0, 1, 0);
-	glRotatef(actor.rotation.z, 0, 0, 1);
+	TransformInfo *actor = &obj.transform;
+
+	glTranslatef(actor->pivot.x, actor->pivot.y, actor->pivot.z);
+	if (obj.parentId != -1)
+		ApplyTransformations(scene.objects[obj.parentId]);		
+
+	glTranslatef(actor->offset.x, actor->offset.y, actor->offset.z);
+	glRotatef(actor->rotation.x, 1, 0, 0);
+	glRotatef(actor->rotation.y, 0, 1, 0);
+	glRotatef(actor->rotation.z, 0, 0, 1);
+	glTranslatef(-actor->offset.x, -actor->offset.y, -actor->offset.z);
+	
+	glTranslatef(actor->position.x, actor->position.y, actor->position.z);	
+
 }
-void RestoreTransforms(TransformInfo& actor)
-{
-	if (actor.parent != -1)
-		RestoreTransforms(g_3DModel.hierarchy[actor.parent]);			// First apply parent tranformations
-	glTranslatef(-actor.offset.x, -actor.offset.y, -actor.offset.z);	// restore original position
-}
-void ApplyTransforms(TransformInfo& actor)
-{
-	glTranslatef(actor.pivot.x, actor.pivot.y, actor.pivot.z);			// Translate into pivot coordinate system
-	SetUpTransforms(actor);												// Apply all translations and rotations
-	RestoreTransforms(actor);
-	glTranslatef(-actor.pivot.x, -actor.pivot.y, -actor.pivot.z);		// Return to default position
-}
-*/
+
+
 
 void Object3DS::Draw(){
+	glPushMatrix();
+	
+	ApplyTransformations(*this);
 	if (this->hasTexture) {
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, textures[this->materialId]);
@@ -471,6 +472,7 @@ void Object3DS::Draw(){
 
 	glColor3ub(255, 255, 255);
 
+	glPushMatrix();
 	glBegin(GL_TRIANGLES);
 	for (int j = 0; j < triangleCount; j++){
 		for (int v = 0; v < 3; v++){
@@ -495,6 +497,7 @@ void Object3DS::Draw(){
 	}
 
 	glEnd();
+	glPopMatrix();
 
 
 	if (drawLines == true) {
@@ -513,13 +516,18 @@ void Object3DS::Draw(){
 
 		glEnd();
 	}
+
+	glPopMatrix();
+	
 }
 
 void Object3DS::DrawColor() {
+	glPushMatrix();
+	
+	ApplyTransformations(*this);
 	glDisable(GL_TEXTURE_2D);
 
 	glColor3ub(color.r, color.g, color.b);
-
 	glBegin(GL_TRIANGLES);
 	for (int j = 0; j < triangleCount; j++) {
 		for (int v = 0; v < 3; v++) {
@@ -528,8 +536,8 @@ void Object3DS::DrawColor() {
 			glVertex3f(vertices[index].x, vertices[index].y, vertices[index].z);
 		}
 	}
-
 	glEnd();
+	glPopMatrix();
 }
 
 void Scene::ComputeNormals()

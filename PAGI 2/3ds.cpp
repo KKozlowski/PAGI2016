@@ -156,34 +156,54 @@ void SceneLoader::NextKeyframer(Scene *scene, Chunk *overchunk) {
 
 		switch (temp.ID) {
 		case MESHINFO:
-			printSTR("==MESHINFO==");
+			printSTR("==== MESHINFO ====");
 			NextKeyframer(scene, &temp);
 			temp.progress += ignore(temp.length - temp.progress);
 			break;
-		case LOCAL_POSITION:
-			printSTR("==POSITIONTRACK==");
+
+		case PIVOT_POSITION:
+			printSTR("==PIVOT_POSITION==");
+			temp.progress += fread(&currentObject->transform.pivot, 1, 12, file);
+			printSTR(currentObject->transform.pivot.to_string());
 			temp.progress += ignore(temp.length - temp.progress);
 			break;
+
+		case LOCAL_POSITION:
+			printSTR("==LOCAL_POSITION==");
+			fseek(file, temp.length - temp.progress - 12, SEEK_CUR);
+			temp.progress = temp.length - 12;
+			temp.progress += fread(&currentObject->transform.offset, 1, 12, file);
+			printSTR(currentObject->transform.offset.to_string());
+			temp.progress += ignore(temp.length - temp.progress);
+			break;
+
+		case LOCAL_ROTATION:
+			printSTR("==LOCAL_ROTATION==");
+			fseek(file, temp.length - temp.progress - 16, SEEK_CUR);
+			temp.progress = temp.length - 16;
+
+			float queaternion[4];
+			temp.progress += fread(&queaternion, 1, 16, file);
+
+			currentObject->transform.rotation = Vector3::ToEuler(queaternion);
+			printSTR(currentObject->transform.rotation.to_string());
+			temp.progress += ignore(temp.length - temp.progress);
+			break;
+
 		case HIERARCHY_POSITION:
 			printSTR("==HIERARCHY_POSITION==");
 			temp.progress += fread(&currentObject->parentId, 1, 2, file);
 			printSTRINT(currentObject->name, currentObject->parentId);
 			//temp.progress += ignore(temp.length - temp.progress);
 			break;
+
 		case NAME_AND_PARENT: {
 			printSTR("==PARENT_ID==");
 			fseek(file, temp.length - temp.progress - 2, SEEK_CUR);
 			temp.progress = temp.length - 2;
 			temp.progress += fread(&currentObject->parentId, 1, 2, file);
 			printSTRINT(currentObject->name, currentObject->parentId);
-			//temp.progress += ignore(temp.length - temp.progress);
 
-			/*int lenght = (temp.length - temp.progress) / 2;
-			garbage = new int16_t[lenght];
-			temp.progress += fread(garbage, 1, lenght, file);
-			
-			currentObject->parentId = garbage[lenght -1];
-			printSTRINT(currentObject->name, currentObject->parentId);*/
 			if (currentObject->parentId != -1)
 				scene->objects[currentObject->parentId].children->push_back(objectIndex);
 
@@ -201,6 +221,8 @@ void SceneLoader::NextKeyframer(Scene *scene, Chunk *overchunk) {
 		overchunk->progress += temp.progress;
 	}
 }
+
+
 
 void SceneLoader::NextMaterial(Scene *scene, Chunk *overchunk){
 	Chunk current = {0};

@@ -119,8 +119,46 @@ public:
 		return one.Cross(two);
 	}
 
+	string to_string() {
+		std::ostringstream ss;
+		ss << "Vector3 + { " << x << ", " << y << ", " << z << " }";
+		return ss.str();
+	}
+
 	static Vector3 const zero;
 	static Vector3 const one;
+
+	static Vector3 ToEuler(double x, double y, double z, double angle)
+	{
+		Vector3 result;
+		double s = sin(angle);
+		double c = cos(angle);
+		double t = 1 - c;
+
+		if ((x*y*t + z*s) > 0.998)
+		{
+			result.x = 2 * atan2(x*sin(angle / 2), cos(angle / 2));
+			result.y = 3.14159 / 2;
+			result.z = 0;
+			return result;
+		}
+		if ((x*y*t + z*s) < -0.998)
+		{
+			result.x = -2 * atan2(x*sin(angle / 2), cos(angle / 2));
+			result.y = -3.14159 / 2;
+			result.z = 0;
+			return result;
+		}
+
+		result.x = atan2(y * s - x * z * t, 1 - (y*y + z*z) * t);
+		result.y = asin(x * y * t + z * s);
+		result.z = atan2(x * s - y * z * t, 1 - (x*x + z*z) * t);
+		return result;
+	}
+
+	static Vector3 ToEuler(float *q) {
+		return ToEuler(q[0], q[1], q[2], q[3]);
+	}
 };
 
 class Vector2 
@@ -157,6 +195,7 @@ public:
 } ;
 
 class TransformInfo {
+public:
 	Vector3 position; //przeksztalcenia usera;
 	Vector3 offset; //local position;
 	Vector3 rotation; //local rotation - you modify it
@@ -191,9 +230,9 @@ public:
 
 	Color color;
 	void AssignColor();
-
-	vector<int16_t> *children = new vector<int16_t>();
 	TransformInfo transform;
+	vector<int16_t> *children = new vector<int16_t>();
+	
 
 	static Object3DS *selected;
 };
