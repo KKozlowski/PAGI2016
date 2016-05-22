@@ -1,7 +1,8 @@
 #include "main.h"										
 #include "3ds.h"										
 #include <time.h>
-#define FILE_NAME  "test.3ds"
+#include "editor.h"
+#define FILE_NAME  "test2.3ds"
 
 Vector3 const Vector3::zero = Vector3(0, 0, 0);
 Vector3 const Vector3::one = Vector3(1, 1, 1);
@@ -16,6 +17,22 @@ Scene scene;
 
 GLuint frameBuffer;
 GLuint texColorBuffer;
+
+Editor editor;
+
+
+float posY;
+float posZ;
+float rotationX;
+float rotationSpeed;
+
+void addPos(float x, float y, float z) {
+	posY += y;
+	posZ += z;
+}
+void addRot(float x, float y, float z) {
+	rotationX += x;
+}
 
 bool drawLines = false;
 bool  lightingEnabled = true;		
@@ -56,6 +73,12 @@ void printSTR(char * s) {
 	int len = 0;
 	len = sprintf(buf, _T("%s\n"), s);
 	OutputDebugString(buf);
+}
+
+void printSTR(string str) {
+	char *cstr = new char[str.length() + 1];
+	strcpy(cstr, str.c_str());
+	printSTR(cstr);
 }
 
 bool CreateTexture(LPTSTR filePath, GLuint &textureID)  
@@ -99,6 +122,10 @@ void invokeMouse() {
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hprev, PSTR cmdline, int ishow) {
 	srand(time(NULL));
+	posY = 3.f;
+	posZ = 40.f;
+	rotationX = 0.0f;
+	rotationSpeed = 0.8f;
 
 	HWND hWnd = GenerateWindow("PAG 1", SCREEN_WIDTH, SCREEN_HEIGHT, hInstance);
 	if (hWnd == NULL) return 0;
@@ -234,11 +261,6 @@ WPARAM MainLoop(){
 /////
 /////////////////
 
-float posY = 3.f;
-float posZ = 40.f;
-float rotationX = 0.0f;
-float rotationSpeed = 0.8f;
-
 void Display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
 	glClearColor(0.5, 1, 1, 1);
@@ -251,7 +273,7 @@ void Display() {
 		0, 1, 0);
 
 	glRotatef(rotationX, 0, 1.0f, 0);
-	rotationX += rotationSpeed;		
+	//addRot( rotationSpeed,0,0);		
 
 
 	if (selectionMoment) {
@@ -266,7 +288,7 @@ void Display() {
 		if (lightingEnabled)
 			glEnable(GL_LIGHTING);
 	}
-
+	glClearColor(0.5, 1, 1, 1);
 	// RYSOWANIE
 	for (int i = 0; i < scene.objects.size(); i++) {
 		scene.objects[i].Draw();
@@ -285,17 +307,24 @@ LRESULT CALLBACK WindowsMessageHandler(HWND hWnd,UINT msg, WPARAM wParam, LPARAM
 	else if (msg == WM_KEYDOWN){
 		switch (wParam) {						
 		case 0x53: //S
-			posY -= 0.4f;
+			editor.Backward();
 			break;
 
 		case 0x57: //W
-			posY += 0.4f;
+			editor.Forward();
+			break;
+
+		case 0x41: //A
+			editor.Left();
+			break;
+		case 0x44: //D
+			editor.Right();
 			break;
 		case VK_DOWN:
-			posZ += 0.8f;
+			editor.Down();
 			break;
 		case VK_UP:
-			posZ -= 0.8f;
+			editor.Up();
 			break;
 		case VK_SPACE:
 			drawLines = !drawLines;
@@ -314,6 +343,17 @@ LRESULT CALLBACK WindowsMessageHandler(HWND hWnd,UINT msg, WPARAM wParam, LPARAM
 			xPos = GET_X_LPARAM(lParam);
 			yPos = GET_Y_LPARAM(lParam);
 		}*/
+
+		case 0x31: //'1'
+			editor.mode = MOVE_VIEW;
+			break;
+		case 0x32: //'2'
+			editor.mode = ROTATE_VIEW;
+			break;
+		case 0x33:
+			editor.mode = MOVE_OBJECT;
+		case 0x34:
+			editor.mode = ROTATE_OBJECT;
 
 		case VK_ESCAPE:							
 			PostQuitMessage(0);					
@@ -393,6 +433,32 @@ void Object3DS::AssignMaterialByName(Scene * scene, char *  objectMaterialName){
 		}
 	}
 }
+
+/*
+void SetUpTransforms(TransformInfo& actor)
+{
+	if (actor.parent != -1)
+		SetUpTransforms(g_3DModel.hierarchy[actor.parent]);				// First applyy parent tranformations
+	glTranslatef(actor.offset.x, actor.offset.y, actor.offset.z);		// go to parent position
+	glTranslatef(actor.position.x, actor.position.y, actor.position.z);	// apply position translation
+	glRotatef(actor.rotation.x, 1, 0, 0);								// apply euler angles rotation
+	glRotatef(actor.rotation.y, 0, 1, 0);
+	glRotatef(actor.rotation.z, 0, 0, 1);
+}
+void RestoreTransforms(TransformInfo& actor)
+{
+	if (actor.parent != -1)
+		RestoreTransforms(g_3DModel.hierarchy[actor.parent]);			// First apply parent tranformations
+	glTranslatef(-actor.offset.x, -actor.offset.y, -actor.offset.z);	// restore original position
+}
+void ApplyTransforms(TransformInfo& actor)
+{
+	glTranslatef(actor.pivot.x, actor.pivot.y, actor.pivot.z);			// Translate into pivot coordinate system
+	SetUpTransforms(actor);												// Apply all translations and rotations
+	RestoreTransforms(actor);
+	glTranslatef(-actor.pivot.x, -actor.pivot.y, -actor.pivot.z);		// Return to default position
+}
+*/
 
 void Object3DS::Draw(){
 	if (this->hasTexture) {

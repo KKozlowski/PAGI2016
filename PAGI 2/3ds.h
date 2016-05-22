@@ -15,7 +15,15 @@
 				#define OBJECT_VERTICES     0x4110			
 				#define OBJECT_FACES		0x4120			
 					#define OBJECT_MATERIAL	0x4130		
-				#define OBJECT_UV			0x4140		
+				#define OBJECT_UV			0x4140	
+
+	#define KEYFRAMER 0xB000
+		#define MESHINFO    0xB002	
+			#define NAME_AND_PARENT 0xB010
+			#define PIVOT_POSITION 0xB013
+			#define LOCAL_POSITION 0xB020
+			#define LOCAL_ROTATION 0xB021
+			#define HIERARCHY_POSITION    0xB030	
 
 
 struct Chunk
@@ -41,6 +49,7 @@ private:
 	void NextChunk(Scene *scene, Chunk *);
 	void NextObject(Scene *scene, Object3DS *pObject, Chunk *);
 	void NextMaterial(Scene *scene, Chunk *);
+	void NextKeyframer(Scene *scene, Chunk *overchunk);
 
 	size_t ignore(int length);
 
@@ -78,13 +87,13 @@ private:
 |        |- 0xA300 // Mapping Filename
 |        |- 0xA351 // Mapping Parameters
 |- 0xB000 // Keyframer Chunk
-|- 0xB002 // Mesh Information Block
-|   |- 0xB010 // Object Name
-|   |- 0xB013 // Object Pivot Point
-|   |- 0xB020 // Position Track
-|   |- 0xB021 // Rotation Track
-|   |- 0xB022 // Scale Track
-|   |-0 xB030 // Hierarchy Position
+|  |- 0xB002 // Mesh Information Block
+|    |- 0xB010 // Object Name
+|    |- 0xB013 // Object Pivot Point
+|    |- 0xB020 // Position Track TOWARDS PARENT
+|    |- 0xB021 // Rotation Track
+|    |- 0xB022 // Scale Track
+|    |- 0xB030 // Hierarchy Position
 |- 0xB007 // Spot Light Information Block
 |- 0xB008 // Frames (Start and End)
 

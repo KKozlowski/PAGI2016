@@ -1,5 +1,4 @@
-#ifndef MAINE
-#define MAINE
+#pragma once
 
 #include <windows.h>
 #include <stdio.h>
@@ -22,10 +21,14 @@ using namespace std;
 
 struct Chunk;
 class Scene;
+class TransformInfo;
 
 void printINT(int value);
 
 void printSTRINT(char * s, int value);
+
+void addPos(float x, float y, float z);
+void addRot(float x, float y, float z);
 
 class Color {
 public:
@@ -153,6 +156,13 @@ public:
 	int   texureId;
 } ;
 
+class TransformInfo {
+	Vector3 position; //przeksztalcenia usera;
+	Vector3 offset; //local position;
+	Vector3 rotation; //local rotation - you modify it
+	Vector3 pivot;
+};
+
 class Object3DS {
 public:
 	char name[255];
@@ -162,7 +172,9 @@ public:
 
 	int  vertexCount;		
 	int  triangleCount;			
-	int  uvCount;			
+	int  uvCount;	
+
+	int16_t parentId = -1;
 
 	Vector3  *vertices;		// Tablica werteksów obiektu
 	Vector3  *normals;		// Tablica normalnych obiektu
@@ -180,8 +192,13 @@ public:
 	Color color;
 	void AssignColor();
 
+	vector<int16_t> *children = new vector<int16_t>();
+	TransformInfo transform;
+
 	static Object3DS *selected;
 };
+
+
 
 struct Scene {
 	vector<Material> materials;	
@@ -204,9 +221,10 @@ LRESULT CALLBACK WindowsMessageHandler(HWND hwnd, UINT message, WPARAM wParam, L
 
 WPARAM MainLoop();
 
+void printSTR(string str);
 void printINT(int value);
+void printSTR(char * s);
 void printSTRINT(char * s, int value);
 
 void createFramebuffer();
 
-#endif 

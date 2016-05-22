@@ -99,10 +99,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="3ds.cpp" />
+    <ClCompile Include="editor.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3ds.h" />
+    <ClInclude Include="editor.h" />
     <ClInclude Include="main.h" />
   </ItemGroup>
   <ItemGroup>

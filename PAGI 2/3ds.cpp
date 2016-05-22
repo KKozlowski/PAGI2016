@@ -70,7 +70,15 @@ void SceneLoader::NextChunk(Scene *scene, Chunk *overchunk){
 			NextObject(scene, &(scene->objects[scene->objects.size() - 1]), &current);
 			break;
 
+		case KEYFRAMER:
+			printSTRINT("==KEYFRAMER==", current.length);
+			NextKeyframer(scene, &current);
+
 		default: 
+			std::stringstream ss;
+			ss << current.ID;
+
+			printSTR(ss.str());
 			current.progress += ignore(current.length - current.progress);
 			break;
 		}
@@ -123,6 +131,72 @@ void SceneLoader::NextObject(Scene *scene, Object3DS *objectt, Chunk *overchunk)
 			temp.progress += ignore(temp.length - temp.progress);
 			break;
 		}
+
+		overchunk->progress += temp.progress;
+	}
+}
+
+int16_t objectIndex = -2;
+void SceneLoader::NextKeyframer(Scene *scene, Chunk *overchunk) {
+	Chunk temp = { 0 };
+	
+	objectIndex++;
+	printSTRINT("CURRENT OBJECT ID: ", objectIndex);
+	Object3DS *currentObject = NULL;
+	// Czytamy kolejne podchunki a¿ skoñczy siê ten, który podano w argmencie.
+	while (overchunk->progress < overchunk->length) {
+		if (objectIndex >= 0)
+			currentObject = &scene->objects[objectIndex];
+		temp = NextChunkInfo();
+		std::stringstream ss;
+		ss << temp.ID;
+		printSTR(ss.str());
+
+		int16_t *garbage;
+
+		switch (temp.ID) {
+		case MESHINFO:
+			printSTR("==MESHINFO==");
+			NextKeyframer(scene, &temp);
+			temp.progress += ignore(temp.length - temp.progress);
+			break;
+		case LOCAL_POSITION:
+			printSTR("==POSITIONTRACK==");
+			temp.progress += ignore(temp.length - temp.progress);
+			break;
+		case HIERARCHY_POSITION:
+			printSTR("==HIERARCHY_POSITION==");
+			temp.progress += fread(&currentObject->parentId, 1, 2, file);
+			printSTRINT(currentObject->name, currentObject->parentId);
+			//temp.progress += ignore(temp.length - temp.progress);
+			break;
+		case NAME_AND_PARENT: {
+			printSTR("==PARENT_ID==");
+			fseek(file, temp.length - temp.progress - 2, SEEK_CUR);
+			temp.progress = temp.length - 2;
+			temp.progress += fread(&currentObject->parentId, 1, 2, file);
+			printSTRINT(currentObject->name, currentObject->parentId);
+			//temp.progress += ignore(temp.length - temp.progress);
+
+			/*int lenght = (temp.length - temp.progress) / 2;
+			garbage = new int16_t[lenght];
+			temp.progress += fread(garbage, 1, lenght, file);
+			
+			currentObject->parentId = garbage[lenght -1];
+			printSTRINT(currentObject->name, currentObject->parentId);*/
+			if (currentObject->parentId != -1)
+				scene->objects[currentObject->parentId].children->push_back(objectIndex);
+
+			temp.progress += ignore(temp.length - temp.progress);
+			break;
+		}
+		default:
+			temp.progress += ignore(temp.length - temp.progress);
+		}
+		
+
+		
+		//temp.progress += ignore(temp.length - temp.progress);
 
 		overchunk->progress += temp.progress;
 	}
