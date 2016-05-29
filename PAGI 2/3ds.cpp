@@ -127,6 +127,18 @@ void SceneLoader::NextObject(Scene *scene, Object3DS *objectt, Chunk *overchunk)
 			objectt->ReadUVCoordinates(&temp, file);
 			break;
 
+		case LOCAL_COORDINATES:
+			printSTRINT("LOCAL_COORDINATES", temp.length);
+			printSTR("==PIVOT_POSITION==");
+			fseek(file, temp.length - temp.progress - 12, SEEK_CUR);
+			temp.progress = temp.length - 12;
+			temp.progress += fread(&objectt->transform.pivot.x, 1, 4, file);
+			temp.progress += fread(&objectt->transform.pivot.y, 1, 4, file);
+			temp.progress += fread(&objectt->transform.pivot.z, 1, 4, file);
+			printSTR(objectt->transform.pivot.to_string());
+			temp.progress += ignore(temp.length - temp.progress);
+			break;
+
 		default:  
 			temp.progress += ignore(temp.length - temp.progress);
 			break;
@@ -161,7 +173,7 @@ void SceneLoader::NextKeyframer(Scene *scene, Chunk *overchunk) {
 			temp.progress += ignore(temp.length - temp.progress);
 			break;
 
-		case PIVOT_POSITION:
+		/*case PIVOT_POSITION:
 			printSTR("==PIVOT_POSITION==");
 			fseek(file, temp.length - temp.progress - 12, SEEK_CUR);
 			temp.progress += fread(&currentObject->transform.pivot.x, 1, 4, file);
@@ -169,7 +181,7 @@ void SceneLoader::NextKeyframer(Scene *scene, Chunk *overchunk) {
 			temp.progress += fread(&currentObject->transform.pivot.z, 1, 4, file);
 			printSTR(currentObject->transform.pivot.to_string());
 			temp.progress += ignore(temp.length - temp.progress);
-			break;
+			break;*/
 
 		case LOCAL_POSITION:
 			printSTR("==LOCAL_POSITION==");

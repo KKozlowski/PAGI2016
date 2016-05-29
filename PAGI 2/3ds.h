@@ -12,10 +12,11 @@
 
 		#define OBJECT						0x4000		
 			#define MESH_HEADER				0x4100				
-				#define OBJECT_VERTICES     0x4110			
-				#define OBJECT_FACES		0x4120			
+				# define OBJECT_VERTICES     0x4110			
+				# define OBJECT_FACES		0x4120			
 					#define OBJECT_MATERIAL	0x4130		
-				#define OBJECT_UV			0x4140	
+				# define OBJECT_UV			0x4140	
+				# define LOCAL_COORDINATES 0x4160
 
 	#define KEYFRAMER 0xB000
 		#define MESHINFO    0xB002	
