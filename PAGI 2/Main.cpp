@@ -2,7 +2,7 @@
 #include "3ds.h"										
 #include <time.h>
 #include "editor.h"
-#define FILE_NAME  "test2.3ds"
+#define FILE_NAME  "test3.3ds"
 
 Vector3 const Vector3::zero = Vector3(0, 0, 0);
 Vector3 const Vector3::one = Vector3(1, 1, 1);
@@ -532,7 +532,7 @@ void Object3DS::DrawColor() {
 		}
 	}
 	glEnd();
-	//glPopMatrix();
+	glPopMatrix();
 }
 
 void Scene::ComputeNormals()
