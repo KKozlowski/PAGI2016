@@ -441,7 +441,7 @@ void Object3DS::AssignMaterialByName(Scene * scene, char *  objectMaterialName){
 	}
 }
 
-
+/*
 void SetUpTransforms(TransformInfo& actor)
 {
 	if (actor.parent != -1)
@@ -465,13 +465,27 @@ void ApplyTransforms(TransformInfo& actor)
 	RestoreTransforms(actor);
 	glTranslatef(-actor.pivot.x, -actor.pivot.y, -actor.pivot.z);		// Return to default position
 }
+*/
+void ApplyTransformations(TransformInfo &actor)
+{
+	glTranslatef(actor.pivot.x, actor.pivot.y, actor.pivot.z);
+	if (actor.parent != -1)
+		ApplyTransformations(scene.objects[actor.parent].transform);
+	glTranslatef(actor.position.x, actor.position.y, actor.position.z);
+	glTranslatef(actor.offset.x, actor.offset.y, actor.offset.z);
+	glRotatef(actor.rotation.x, 1, 0, 0);
+	glRotatef(actor.rotation.y, 0, 1, 0);
+	glRotatef(actor.rotation.z, 0, 0, 1);
+	glTranslatef(-actor.offset.x, -actor.offset.y, -actor.offset.z);
 
+	
 
+}
 
 void Object3DS::Draw(){
 	glPushMatrix();
 
-	ApplyTransforms(transform);
+	ApplyTransformations(transform);
 	if (this->hasTexture) {
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, textures[this->materialId]);
@@ -516,7 +530,7 @@ void Object3DS::Draw(){
 
 void Object3DS::DrawColor() {
 	glPushMatrix();
-	ApplyTransforms(transform);
+	ApplyTransformations(transform);
 	
 	
 	//ApplyTransformations(*this);
