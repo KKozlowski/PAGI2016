@@ -23,7 +23,7 @@ Editor editor;
 
 float posY;
 float posZ;
-float rotationX;
+Vector3 rotation;
 float rotationSpeed;
 
 void addPos(float x, float y, float z) {
@@ -31,7 +31,9 @@ void addPos(float x, float y, float z) {
 	posZ += z;
 }
 void addRot(float x, float y, float z) {
-	rotationX += x;
+	rotation.x += x;
+	rotation.y += y;
+	rotation.y += z;
 }
 
 bool drawLines = false;
@@ -124,7 +126,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hprev, PSTR cmdline, int ishow
 	srand(time(NULL));
 	posY = 3.f;
 	posZ = 40.f;
-	rotationX = 0.0f;
+	
 	rotationSpeed = 0.8f;
 
 	HWND hWnd = GenerateWindow("PAG 1", SCREEN_WIDTH, SCREEN_HEIGHT, hInstance);
@@ -272,7 +274,9 @@ void Display() {
 		0, posY, 0,
 		0, 1, 0);
 
-	glRotatef(rotationX, 0, 1.0f, 0);
+	glRotatef(rotation.x, 1.0f, 0, 0);
+	glRotatef(rotation.y, 0, 1.0f, 0);
+	glRotatef(rotation.z, 0, 0, 1.0f);
 	//addRot( rotationSpeed,0,0);		
 
 
@@ -511,8 +515,9 @@ void Object3DS::Draw(){
 }
 
 void Object3DS::DrawColor() {
+	glPushMatrix();
 	ApplyTransforms(transform);
-	//glPushMatrix();
+	
 	
 	//ApplyTransformations(*this);
 	glDisable(GL_TEXTURE_2D);
