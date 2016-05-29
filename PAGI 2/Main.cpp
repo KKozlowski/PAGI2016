@@ -618,32 +618,6 @@ void Object3DS::AssignColor()
 	this->color = color;
 }
 
-
-////https://open.gl/framebuffers
-//void createFramebuffer() {
-//	
-//	glGenFramebuffers(1, &frameBuffer);
-//	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-//
-//	// Create texture to hold color buffer
-//	glGenTextures(1, &texColorBuffer);
-//	glBindTexture(GL_TEXTURE_2D, texColorBuffer);
-//
-//	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCREEN_HEIGHT, SCREEN_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-//
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-//
-//	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texColorBuffer, 0);
-//
-//	// Create Renderbuffer Object to hold depth and stencil buffers
-//	GLuint rboDepthStencil;
-//	glGenRenderbuffers(1, &rboDepthStencil);
-//	glBindRenderbuffer(GL_RENDERBUFFER, rboDepthStencil);
-//	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600);
-//	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rboDepthStencil);
-//}
-
 void mousesz(int x, int y)
 {
 	// 4 bytes per pixel (RGBA), 1x1 bitmap
