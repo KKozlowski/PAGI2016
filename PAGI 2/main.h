@@ -200,6 +200,8 @@ public:
 	Vector3 offset; //local position;
 	Vector3 rotation; //local rotation - you modify it
 	Vector3 pivot;
+	int16_t parent = -1;
+	vector<int16_t> *children = new vector<int16_t>();
 };
 
 class Object3DS {
@@ -212,8 +214,6 @@ public:
 	int  vertexCount;		
 	int  triangleCount;			
 	int  uvCount;	
-
-	int16_t parentId = -1;
 
 	Vector3  *vertices;		// Tablica werteksów obiektu
 	Vector3  *normals;		// Tablica normalnych obiektu

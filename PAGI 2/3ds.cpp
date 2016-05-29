@@ -192,8 +192,8 @@ void SceneLoader::NextKeyframer(Scene *scene, Chunk *overchunk) {
 
 		case HIERARCHY_POSITION:
 			printSTR("==HIERARCHY_POSITION==");
-			temp.progress += fread(&currentObject->parentId, 1, 2, file);
-			printSTRINT(currentObject->name, currentObject->parentId);
+			temp.progress += fread(&currentObject->transform.parent, 1, 2, file);
+			printSTRINT(currentObject->name, currentObject->transform.parent);
 			//temp.progress += ignore(temp.length - temp.progress);
 			break;
 
@@ -201,11 +201,11 @@ void SceneLoader::NextKeyframer(Scene *scene, Chunk *overchunk) {
 			printSTR("==PARENT_ID==");
 			fseek(file, temp.length - temp.progress - 2, SEEK_CUR);
 			temp.progress = temp.length - 2;
-			temp.progress += fread(&currentObject->parentId, 1, 2, file);
-			printSTRINT(currentObject->name, currentObject->parentId);
+			temp.progress += fread(&currentObject->transform.parent, 1, 2, file);
+			printSTRINT(currentObject->name, currentObject->transform.parent);
 
-			if (currentObject->parentId != -1)
-				scene->objects[currentObject->parentId].children->push_back(objectIndex);
+			if (currentObject->transform.parent != -1)
+				scene->objects[currentObject->transform.parent].transform.children->push_back(objectIndex);
 
 			temp.progress += ignore(temp.length - temp.progress);
 			break;

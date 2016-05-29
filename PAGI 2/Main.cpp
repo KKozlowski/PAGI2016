@@ -438,30 +438,36 @@ void Object3DS::AssignMaterialByName(Scene * scene, char *  objectMaterialName){
 }
 
 
-void ApplyTransformations(Object3DS &obj)
+void SetUpTransforms(TransformInfo& actor)
 {
-	TransformInfo *actor = &obj.transform;
-
-	glTranslatef(actor->pivot.x, actor->pivot.y, actor->pivot.z);
-	if (obj.parentId != -1)
-		ApplyTransformations(scene.objects[obj.parentId]);		
-
-	glTranslatef(actor->offset.x, actor->offset.y, actor->offset.z);
-	glRotatef(actor->rotation.x, 1, 0, 0);
-	glRotatef(actor->rotation.y, 0, 1, 0);
-	glRotatef(actor->rotation.z, 0, 0, 1);
-	glTranslatef(-actor->offset.x, -actor->offset.y, -actor->offset.z);
-	
-	glTranslatef(actor->position.x, actor->position.y, actor->position.z);	
-
+	if (actor.parent != -1)
+		SetUpTransforms(scene.objects[actor.parent].transform);				// First applyy parent tranformations
+	glTranslatef(actor.offset.x, actor.offset.y, actor.offset.z);		// go to parent position
+	glTranslatef(actor.position.x, actor.position.y, actor.position.z);	// apply position translation
+	glRotatef(actor.rotation.x, 1, 0, 0);								// apply euler angles rotation
+	glRotatef(actor.rotation.y, 0, 1, 0);
+	glRotatef(actor.rotation.z, 0, 0, 1);
+}
+void RestoreTransforms(TransformInfo& actor)
+{
+	if (actor.parent != -1)
+		RestoreTransforms(scene.objects[actor.parent].transform);			// First apply parent tranformations
+	glTranslatef(-actor.offset.x, -actor.offset.y, -actor.offset.z);	// restore original position
+}
+void ApplyTransforms(TransformInfo& actor)
+{
+	glTranslatef(actor.pivot.x, actor.pivot.y, actor.pivot.z);			// Translate into pivot coordinate system
+	SetUpTransforms(actor);												// Apply all translations and rotations
+	RestoreTransforms(actor);
+	glTranslatef(-actor.pivot.x, -actor.pivot.y, -actor.pivot.z);		// Return to default position
 }
 
 
 
 void Object3DS::Draw(){
 	glPushMatrix();
-	
-	ApplyTransformations(*this);
+
+	ApplyTransforms(transform);
 	if (this->hasTexture) {
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, textures[this->materialId]);
@@ -472,7 +478,7 @@ void Object3DS::Draw(){
 
 	glColor3ub(255, 255, 255);
 
-	glPushMatrix();
+	//glPushMatrix();
 	glBegin(GL_TRIANGLES);
 	for (int j = 0; j < triangleCount; j++){
 		for (int v = 0; v < 3; v++){
@@ -500,31 +506,15 @@ void Object3DS::Draw(){
 	glPopMatrix();
 
 
-	if (drawLines == true) {
-		glDisable(GL_TEXTURE_2D);
-		glColor3ub(255, 255, 255);
-		glLineWidth(3);
-
-		glBegin(GL_LINE_STRIP);
-
-		for (int j = 0; j < triangleCount; j++) {
-			for (int whichVertex = 0; whichVertex < 3; whichVertex++) {
-				int index = triangles[j].vertexIndexes[whichVertex];
-				glVertex3f(vertices[index].x, vertices[index].y, vertices[index].z);
-			}
-		}
-
-		glEnd();
-	}
-
-	glPopMatrix();
+	//glPopMatrix();
 	
 }
 
 void Object3DS::DrawColor() {
-	glPushMatrix();
+	ApplyTransforms(transform);
+	//glPushMatrix();
 	
-	ApplyTransformations(*this);
+	//ApplyTransformations(*this);
 	glDisable(GL_TEXTURE_2D);
 
 	glColor3ub(color.r, color.g, color.b);
@@ -537,7 +527,7 @@ void Object3DS::DrawColor() {
 		}
 	}
 	glEnd();
-	glPopMatrix();
+	//glPopMatrix();
 }
 
 void Scene::ComputeNormals()
