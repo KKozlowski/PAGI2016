@@ -163,7 +163,10 @@ void SceneLoader::NextKeyframer(Scene *scene, Chunk *overchunk) {
 
 		case PIVOT_POSITION:
 			printSTR("==PIVOT_POSITION==");
-			temp.progress += fread(&currentObject->transform.pivot, 1, 12, file);
+			fseek(file, temp.length - temp.progress - 12, SEEK_CUR);
+			temp.progress += fread(&currentObject->transform.pivot.x, 1, 4, file);
+			temp.progress += fread(&currentObject->transform.pivot.y, 1, 4, file);
+			temp.progress += fread(&currentObject->transform.pivot.z, 1, 4, file);
 			printSTR(currentObject->transform.pivot.to_string());
 			temp.progress += ignore(temp.length - temp.progress);
 			break;
@@ -172,7 +175,9 @@ void SceneLoader::NextKeyframer(Scene *scene, Chunk *overchunk) {
 			printSTR("==LOCAL_POSITION==");
 			fseek(file, temp.length - temp.progress - 12, SEEK_CUR);
 			temp.progress = temp.length - 12;
-			temp.progress += fread(&currentObject->transform.offset, 1, 12, file);
+			temp.progress += fread(&currentObject->transform.offset.x, 1, 4, file);
+			temp.progress += fread(&currentObject->transform.offset.y, 1, 4, file);
+			temp.progress += fread(&currentObject->transform.offset.z, 1, 4, file);
 			printSTR(currentObject->transform.offset.to_string());
 			temp.progress += ignore(temp.length - temp.progress);
 			break;
