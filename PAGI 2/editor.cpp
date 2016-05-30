@@ -14,7 +14,7 @@ void Editor::Up()
 
 	if (mode == ROTATE_OBJECT) {
 		if (Object3DS::selected != NULL)
-			Object3DS::selected->transform.rotation.x -= rotStep;
+			Object3DS::selected->transform.rotation.y -= rotStep;
 	}
 }
 
@@ -28,7 +28,7 @@ void Editor::Down()
 	}
 	if (mode == ROTATE_OBJECT) {
 		if (Object3DS::selected != NULL)
-			Object3DS::selected->transform.rotation.x += rotStep;
+			Object3DS::selected->transform.rotation.y += rotStep;
 	}
 }
 
@@ -45,7 +45,7 @@ void Editor::Forward()
 
 	if (mode == ROTATE_OBJECT) {
 		if (Object3DS::selected != NULL)
-			Object3DS::selected->transform.rotation.z += rotStep;
+			Object3DS::selected->transform.rotation.x -= rotStep;
 	}
 }
 
@@ -62,7 +62,7 @@ void Editor::Backward()
 
 	if (mode == ROTATE_OBJECT) {
 		if (Object3DS::selected != NULL)
-			Object3DS::selected->transform.rotation.z -= rotStep;
+			Object3DS::selected->transform.rotation.x += rotStep;
 	}
 }
 
@@ -77,7 +77,7 @@ void Editor::Left()
 
 	if (mode == ROTATE_OBJECT) {
 		if (Object3DS::selected != NULL)
-			Object3DS::selected->transform.rotation.y -= rotStep;
+			Object3DS::selected->transform.rotation.z -= rotStep;
 	}
 }
 
@@ -91,6 +91,6 @@ void Editor::Right()
 	}
 	if (mode == ROTATE_OBJECT) {
 		if (Object3DS::selected != NULL)
-			Object3DS::selected->transform.rotation.y += rotStep;
+			Object3DS::selected->transform.rotation.z += rotStep;
 	}
 }

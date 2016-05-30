@@ -23,7 +23,7 @@ Editor editor;
 
 float posY;
 float posZ;
-Vector3 rotation;
+Vector3 rotation(0,0, 0);
 float rotationSpeed;
 
 void addPos(float x, float y, float z) {
@@ -273,7 +273,7 @@ void Display() {
 		0, posY, posZ,
 		0, posY, 0,
 		0, 1, 0);
-
+	glRotatef(-90, 1, 0, 0);
 	glRotatef(rotation.x, 1.0f, 0, 0);
 	glRotatef(rotation.y, 0, 1.0f, 0);
 	glRotatef(rotation.z, 0, 0, 1.0f);
@@ -298,7 +298,7 @@ void Display() {
 	for (int i = 0; i < scene.objects.size(); i++) {
 		scene.objects[i].Draw();
 	}
-
+	glRotatef(90, 1, 0, 0);
 	SwapBuffers(deviceContext);	
 }
 
@@ -389,12 +389,12 @@ void Object3DS::ReadVertices(Chunk *overchunk, FILE *file)
 	overchunk->progress += fread(this->vertices, 1, overchunk->length - overchunk->progress, file);
 
 	//Zmieniamy uk³ad odniesienia z 3DS Maksowego na taki u¿ywany przez resztê œwiata.
-	for (int i = 0; i < this->vertexCount; i++)
+	/*for (int i = 0; i < this->vertexCount; i++)
 	{
 		float fTempY = this->vertices[i].y;
 		this->vertices[i].y = this->vertices[i].z;
 		this->vertices[i].z = -fTempY;
-	}
+	}*/
 }
 
 
