@@ -119,6 +119,11 @@ public:
 			((z * vec.x) - (x * vec.z)),
 			((x * vec.y) - (y * vec.x))
 			);
+	 }
+
+	float Dot(Vector3 vec)
+	{
+		return x*vec.x + y*vec.y + z*vec.z;
 	}
 
 	static Vector3 Cross(Vector3 one, Vector3 two){
@@ -225,6 +230,8 @@ public:
 	int  vertexCount;		
 	int  triangleCount;			
 	int  uvCount;	
+
+	bool hidden = false;
 
 	Vector3  *vertices;		// Tablica werteksów obiektu
 	Vector3  *normals;		// Tablica normalnych obiektu

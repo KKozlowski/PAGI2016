@@ -7,8 +7,26 @@ class Ball
 private:
 	Object3DS *me;
 
+	void try_hit(Ball *b)
+	{
+		Vector3 distanceVec = b->me->transform.position - me->transform.position;
+		if (distanceVec.Mag() < get_radius() + b->get_radius())
+		{
+			//b->me->hidden = true;
+			float velocityGiven = velocity.Dot(distanceVec);
+			velocityGiven *= 0.01f;
+			Vector3 vel = distanceVec/2;
+			//vel.Normalize();
+			b->add_velocity(vel * (velocityGiven *radius/b->get_radius())  );
+			this->add_velocity(vel*(-velocityGiven * b->get_radius()/radius));
+				//printFLOAT(velocityGiven);
+		}
+			
+	}
+
 	void updateSelf(float deltaTime)
 	{
+		float prevZ = me->transform.position.z;
 		if (duringThrow) me->transform.position.z = me->transform.position.z - minusZ;
 
 		me->transform.position = me->transform.position + velocity*deltaTime;
@@ -17,7 +35,23 @@ private:
 			timePassed += deltaTime;
 			minusZ = -G*0.5f*timePassed*timePassed;
 			me->transform.position.z = me->transform.position.z + minusZ;
+			float nowZ = me->transform.position.z;
+			if (me->transform.position.z <= floorLevel + radius && prevZ > nowZ) {
+				velocity.z = -velocity.z*bumpiness;
+				stop_throw_simulation();
+				start_throw_simulation();
+			}
 		}
+
+		if (checksForCollisions)
+		for (Ball *b : balls)
+		{
+			if (b!=this)
+			{
+				try_hit(b);
+			}
+		}
+		
 	}
 
 	static Timer t;
@@ -25,15 +59,34 @@ private:
 	float timePassed = 0;
 	bool duringThrow = false;
 	float minusZ = 0;
-
+	float radius = 1;
 	
 public:
 	Vector3 velocity;
+	bool checksForCollisions = false;
+	Object3DS *getObject() { return me; }
+
+	float get_radius() const
+	{ return radius; }
 
 	Ball(Object3DS *o)
 	{
 		me = o;
 		balls.push_back(this);
+
+		float maxZ = 0, minZ = 0;
+		for (int i = 0; i < me->vertexCount; i++)
+		{
+			float z = me->vertices[i].z - me->transform.pivot.z;
+			if (z > maxZ)
+			{
+				maxZ = z;
+			}
+			if (z < minZ)
+				minZ = z;
+		}
+		radius = (maxZ - minZ) / 2;
+		printFLOAT(radius);
 	}
 
 	TransformInfo *transform() { return &me->transform; }
@@ -41,6 +94,9 @@ public:
 	static vector<Ball *> balls;
 
 	static float G;
+	
+	static float floorLevel;
+	static float bumpiness;
 
 	void add_velocity(Vector3 v)
 	{

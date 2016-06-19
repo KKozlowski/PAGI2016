@@ -72,6 +72,7 @@ public:
 		ball->stop_throw_simulation();
 		printSTR("RETURN");
 		ball->velocity = Vector3::zero;
+		ball->getObject()->hidden = false;
 		if (toPreviousPosition)
 			ball->transform()->position = previousBallFinalPosition;
 		else

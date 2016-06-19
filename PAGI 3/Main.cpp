@@ -134,8 +134,8 @@ void invokeMouse() {
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hprev, PSTR cmdline, int ishow) {
 	srand(time(NULL));
-	posY = 10.f;
-	posZ = 80.f;
+	posY = -5.f;
+	posZ = 90.f;
 	
 	rotationSpeed = 0.8f;
 
@@ -488,7 +488,10 @@ void prepareSling()
 	auto r = scene.getObjectByName("R");
 	
 	Ball *ball = new Ball(scene.getObjectByName("Ball"));
+	ball->checksForCollisions = true;
 	Ball *target = new Ball(scene.getObjectByName("Target"));
+
+	//Ball::floorLevel = scene.getObjectByName("zFloor")->transform.position.z;
 	target->transform()->position = Vector3(40, 90, 6);
 
 	auto obj = scene.getObjectByName("_Sling");
@@ -499,46 +502,47 @@ void prepareSling()
 
 
 void Object3DS::Draw(){
-	glPushMatrix();
-	//printSTR(name);
-	ApplyTransformations2(transform);
-	if (this->hasTexture) {
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, textures[this->materialId]);
-	}
-	else {
-		glDisable(GL_TEXTURE_2D);
-	}
-
-	glColor3ub(255, 255, 255);
-
-	glBegin(GL_TRIANGLES);
-	for (int j = 0; j < triangleCount; j++){
-		for (int v = 0; v < 3; v++){
-			int index = triangles[j].vertexIndexes[v];
-			glNormal3f(normals[index].x, normals[index].y, normals[index].z);
-
-			if (hasTexture) {
-				if (uvCoords != 0) { //czy tablica koordynatów nie jest wyzerowana (czy coœ wczytano)
-					glTexCoord2f(uvCoords[index].x, uvCoords[index].y);
-				}
-			}
-			else {
-				if (scene.materials.size() && materialId >= 0) 
-				{
-					BYTE *pColor = scene.materials[materialId].color;
-					glColor3ub(pColor[0], pColor[1], pColor[2]);
-				}
-			}
-
-			glVertex3f(vertices[index].x, vertices[index].y, vertices[index].z);
+	if (!hidden) {
+		glPushMatrix();
+		//printSTR(name);
+		ApplyTransformations2(transform);
+		if (this->hasTexture) {
+			glEnable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, textures[this->materialId]);
 		}
+		else {
+			glDisable(GL_TEXTURE_2D);
+		}
+
+		glColor3ub(255, 255, 255);
+
+		glBegin(GL_TRIANGLES);
+		for (int j = 0; j < triangleCount; j++) {
+			for (int v = 0; v < 3; v++) {
+				int index = triangles[j].vertexIndexes[v];
+				glNormal3f(normals[index].x, normals[index].y, normals[index].z);
+
+				if (hasTexture) {
+					if (uvCoords != 0) { //czy tablica koordynatów nie jest wyzerowana (czy coœ wczytano)
+						glTexCoord2f(uvCoords[index].x, uvCoords[index].y);
+					}
+				}
+				else {
+					if (scene.materials.size() && materialId >= 0)
+					{
+						BYTE *pColor = scene.materials[materialId].color;
+						glColor3ub(pColor[0], pColor[1], pColor[2]);
+					}
+				}
+
+				glVertex3f(vertices[index].x, vertices[index].y, vertices[index].z);
+			}
+		}
+
+		glEnd();
+
+		glPopMatrix();
 	}
-
-	glEnd();
-
-	glPopMatrix();
-
 }
 
 void Object3DS::DrawColor() {
