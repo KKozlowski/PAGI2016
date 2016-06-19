@@ -40,7 +40,7 @@ void Editor::Forward()
 		addPos(0, 0, -0.8f);
 	if (mode == MOVE_OBJECT) {
 		if (Object3DS::selected != NULL)
-			Object3DS::selected->transform.position.z -= moveStep;
+			Object3DS::selected->transform.position.z += moveStep;
 	}
 
 	//if (mode == ROTATE_OBJECT) {
@@ -57,7 +57,7 @@ void Editor::Backward()
 		addPos(0, 0, 0.8f);
 	if (mode == MOVE_OBJECT) {
 		if (Object3DS::selected != NULL)
-			Object3DS::selected->transform.position.z += moveStep;
+			Object3DS::selected->transform.position.z -= moveStep;
 	}
 
 	//if (mode == ROTATE_OBJECT) {
