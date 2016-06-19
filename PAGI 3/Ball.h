@@ -9,10 +9,22 @@ private:
 
 	void updateSelf(float deltaTime)
 	{
+		if (duringThrow) me->transform.position.z = me->transform.position.z - minusZ;
+
 		me->transform.position = me->transform.position + velocity*deltaTime;
+
+		if (duringThrow) {
+			timePassed += deltaTime;
+			minusZ = -G*0.5f*timePassed*timePassed;
+			me->transform.position.z = me->transform.position.z + minusZ;
+		}
 	}
 
 	static Timer t;
+
+	float timePassed = 0;
+	bool duringThrow = false;
+	float minusZ = 0;
 
 	
 public:
@@ -27,6 +39,28 @@ public:
 	TransformInfo *transform() { return &me->transform; }
 	
 	static vector<Ball *> balls;
+
+	static float G;
+
+	void add_velocity(Vector3 v)
+	{
+		velocity = velocity + v;
+	}
+
+	void start_throw_simulation()
+	{
+		printSTR("START SIMULATION");
+		duringThrow = true;
+		timePassed = 0;
+		minusZ = 0;
+	}
+
+	void stop_throw_simulation()
+	{
+		duringThrow = false;
+		timePassed = 0;
+		minusZ = 0;
+	}
 
 	static void update()
 	{

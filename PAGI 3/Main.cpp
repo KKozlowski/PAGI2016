@@ -363,7 +363,10 @@ LRESULT CALLBACK WindowsMessageHandler(HWND hWnd,UINT msg, WPARAM wParam, LPARAM
 			//else {
 			//	glDisable(GL_LIGHTING);
 			//}
-			Sling::main->take_ball();
+			Sling::main->take_ball(true);
+			break;
+		case VK_BACK:
+			Sling::main->take_ball(false);
 			break;
 		/*case WM_MOUSEMOVE: {
 			xPos = GET_X_LPARAM(lParam);
@@ -491,7 +494,7 @@ void prepareSling()
 	auto obj = scene.getObjectByName("_Sling");
 
 	Sling::main = new Sling(obj, ball, l, r);
-	Sling::main->take_ball();
+	Sling::main->take_ball(false);
 }
 
 

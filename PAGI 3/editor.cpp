@@ -1,6 +1,6 @@
 #include "editor.h"
 
-float moveStep = 0.4f;
+float moveStep = 0.8f;
 float rotStep = 0.4f;
 
 void Editor::Up()

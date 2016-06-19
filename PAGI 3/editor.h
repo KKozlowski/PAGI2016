@@ -13,7 +13,7 @@ public:
 	editor_mode mode;
 
 	Editor() {
-		mode = MOVE_VIEW;
+		mode = MOVE_OBJECT;
 	};
 	void Up();
 	void Down();
