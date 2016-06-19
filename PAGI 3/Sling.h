@@ -79,4 +79,78 @@ public:
 			ball->transform()->position = get_center();
 
 	}
+
+	void DrawLine()
+	{
+		if (ball->transform()->position.y < get_center().z) {
+			glPushMatrix();
+
+
+			Vector3 lPos = leftEnd->transform.self_position_without_rotation();
+			lPos = lPos + me->transform.self_position_without_rotation() + Vector3(0, 0, 24);
+			Vector3 rPos = rightEnd->transform.self_position_without_rotation();
+			rPos = rPos + me->transform.self_position_without_rotation() + Vector3(0, 0, 24);
+			Vector3 bPos = ball->getObject()->transform.self_position_without_rotation();
+
+			/*glPushMatrix();
+			glTranslatef(lPos.x, lPos.y, lPos.z);
+			glBegin(GL_TRIANGLES);
+			glColor3f(0.1, 0.2, 0.3);
+			glVertex3f(0, 0, 0);
+			glVertex3f(0, 0, 10);
+			glVertex3f(10, 0, 0);
+			glEnd();
+			glPopMatrix();*/
+
+
+
+			glPushMatrix();
+			glColor3f(0.1, 0.2, 0.3);
+			glTranslatef(lPos.x, lPos.y, lPos.z);
+			glBegin(GL_TRIANGLES);
+			glVertex3f(0, 0, 0);
+			glVertex3f(0, 0, 3);
+			glVertex3f(bPos.x - lPos.x - 1.8f, bPos.y - lPos.y - 3, bPos.z - lPos.z - 2);
+			glVertex3f(bPos.x - lPos.x - 1.8f, bPos.y - lPos.y - 3, bPos.z - lPos.z - 2);
+			glVertex3f(bPos.x - lPos.x - 1.8f, bPos.y - lPos.y - 3, bPos.z - lPos.z);
+			glVertex3f(0, 0, 3);
+			glEnd();
+
+			glTranslatef(rPos.x - lPos.x, rPos.y - lPos.y, rPos.z - lPos.z);
+			glBegin(GL_TRIANGLES);
+			glVertex3f(0, 0, 0);
+			glVertex3f(0, 0, 3);
+			glVertex3f(bPos.x - rPos.x + 1.8f, bPos.y - rPos.y - 3, bPos.z - rPos.z - 2);
+			glVertex3f(bPos.x - rPos.x + 1.8f, bPos.y - rPos.y - 3, bPos.z - rPos.z - 2);
+			glVertex3f(bPos.x - rPos.x + 1.8f, bPos.y - rPos.y - 3, bPos.z - rPos.z);
+			glVertex3f(0, 0, 3);
+			glEnd();
+			
+
+			glTranslatef(bPos.x - rPos.x, bPos.y - rPos.y, bPos.z - rPos.z);
+			glBegin(GL_TRIANGLES);
+			glVertex3f(-1.8f, -3, 0);
+			glVertex3f(-1.8f, -3, -2);
+			glVertex3f(1.8f, -3, -2);
+			glVertex3f(1.8f, -3, -2);
+			glVertex3f(1.8f, -3, 0);
+			glVertex3f(-1.8f, -3, 0);
+			glEnd();
+			glPopMatrix();
+
+			/*glPushMatrix();
+			glTranslatef(bPos.x, bPos.y, bPos.z);
+				glVertex3f(0, 5, 0);
+				glVertex3f(0, 5, 0);
+			glPopMatrix();
+			glPushMatrix();
+				glTranslatef(lPos.x, lPos.y, lPos.z);
+				glVertex3f(0, -5, 0);
+			glPopMatrix();
+			glVertex3f(0, 10, 0);*/
+
+
+			glPopMatrix();
+		}
+	}
 };

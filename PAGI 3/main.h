@@ -279,6 +279,8 @@ LRESULT CALLBACK WindowsMessageHandler(HWND hwnd, UINT message, WPARAM wParam, L
 
 WPARAM MainLoop();
 
+void ApplyTransformations2(TransformInfo &actor);
+
 void printSTR(string str);
 void printINT(int value);
 void printSTR(char * s);

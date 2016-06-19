@@ -314,6 +314,7 @@ void Display() {
 	for (int i = 0; i < scene.objects.size(); i++) {
 		scene.objects[i].Draw();
 	}
+	Sling::main->DrawLine();
 	glRotatef(90, 1, 0, 0);
 	SwapBuffers(deviceContext);	
 
@@ -489,10 +490,12 @@ void prepareSling()
 	
 	Ball *ball = new Ball(scene.getObjectByName("Ball"));
 	ball->checksForCollisions = true;
-	Ball *target = new Ball(scene.getObjectByName("Target"));
+	Ball *target1 = new Ball(scene.getObjectByName("Target1"));
+	Ball *target2 = new Ball(scene.getObjectByName("Target2"));
 
 	//Ball::floorLevel = scene.getObjectByName("zFloor")->transform.position.z;
-	target->transform()->position = Vector3(40, 90, 6);
+	target1->transform()->position = Vector3(40, 90, 6);
+	target2->transform()->position = Vector3(-40, 40, 6);
 
 	auto obj = scene.getObjectByName("_Sling");
 
