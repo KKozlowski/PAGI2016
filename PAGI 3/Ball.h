@@ -16,7 +16,6 @@ private:
 			float velocityGiven = velocity.Dot(distanceVec);
 			velocityGiven *= 0.01f;
 			Vector3 vel = distanceVec/2;
-			//vel.Normalize();
 			b->add_velocity(vel * (velocityGiven *radius/b->get_radius())  );
 			this->add_velocity(vel*(-velocityGiven * b->get_radius()/radius));
 				//printFLOAT(velocityGiven);

@@ -34,7 +34,7 @@ public:
 			Vector3 velocity = get_center() - ball->transform()->position;
 			
 			ball->add_velocity(velocity*t.get_delta_time()*forceScale);
-			if (ball->transform()->position.y > 0)
+			if (ball->transform()->position.y > get_center().y)
 			{
 				duringThrow = false;
 				ball->start_throw_simulation();
@@ -82,7 +82,7 @@ public:
 
 	void DrawLine()
 	{
-		if (ball->transform()->position.y < get_center().z) {
+		if (ball->transform()->position.y < get_center().y) {
 			glPushMatrix();
 
 
