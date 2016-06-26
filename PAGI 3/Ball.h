@@ -1,17 +1,43 @@
 ﻿#pragma once
 #include "main.h"
 #include "Timer.h"
+#include <cstdlib>
+#include <vector>
+
+using namespace std;
 
 class Ball
 {
 private:
 	Object3DS *me;
 
+	vector<Ball *> colliding;
+
+	bool wasColliding(Ball *b)
+	{
+		bool contains = false;
+		for (Ball * bal : colliding)
+		{
+			if (bal == b)
+			{
+				contains = true;
+				break;
+			}
+		}
+		return contains;
+	}
+
 	void try_hit(Ball *b)
 	{
 		Vector3 distanceVec = b->me->transform.position - me->transform.position;
 		if (distanceVec.Mag() < get_radius() + b->get_radius())
 		{
+			bool contains = wasColliding(b);
+			if (contains)
+				return;
+			else
+				colliding.push_back(b);
+
 			//b->me->hidden = true;
 			float velocityGiven = velocity.Dot(distanceVec);
 			velocityGiven *= 0.01f;
@@ -19,6 +45,11 @@ private:
 			b->add_velocity(vel * (velocityGiven *radius/b->get_radius())  );
 			this->add_velocity(vel*(-velocityGiven * b->get_radius()/radius));
 				//printFLOAT(velocityGiven);
+		} else
+		{
+			bool contains = wasColliding(b);
+			if (contains)
+				colliding.erase(find(colliding.begin(), colliding.end(), b));
 		}
 			
 	}
